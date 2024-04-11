@@ -3,8 +3,9 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/Mintable.sol";
 
-contract TIGER is ERC20, Ownable {
+contract TIGER is ERC20, Ownable, Mintable {
     mapping(address => bool) public whitelist; // modified for testing purposes
 
     constructor() ERC20("TIGER", "TIGER") {
@@ -12,8 +13,7 @@ contract TIGER is ERC20, Ownable {
         whitelist[msg.sender] = true;
     }
 
-    function mint(uint256 amount, address wallet) public {
-        require(whitelist[msg.sender], "Only whitelisted address can mint");
+    function mint(uint256 amount, address wallet) external override {
         _mint(wallet, amount);
     }
 

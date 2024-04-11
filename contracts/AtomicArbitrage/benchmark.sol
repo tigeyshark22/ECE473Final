@@ -12,34 +12,30 @@ contract Arbitrage {
 
     address private constant SWAP_ROUTER = 0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E;
 
-    address private constant LUSD = 0x62d92D8F8bad22F5f4d69dB24698F150cD637675;
-    address public constant TIGER = 0x42d3F8B4a384e2D3d2f7cce4B986648771051D6F;
-
     IV3SwapRouter public immutable swapRouter = IV3SwapRouter(SWAP_ROUTER);
 
-    function doArbitrage(uint256 amountIn)
+    function doArbitrage(uint256 amountIn, address lusdAddr, address tigerAddr)
         external
         returns (uint256 amountOut)
     {
-
         // Use TransferHelper to transfer LUSD from your wallet to the smart contract
         // Make sure that you approve this contract to spend LUSD through the LUSD contract
         TransferHelper.safeTransferFrom(
-            LUSD, // Token 
+            lusdAddr, // Token 
             msg.sender, // Sender
             address(this), // Recipient
             amountIn // Amount
         );
 
         // Approve the SwapRouter to transfer our LUSD
-        TransferHelper.safeApprove(LUSD, address(swapRouter), amountIn);
+        TransferHelper.safeApprove(lusdAddr, address(swapRouter), amountIn);
 
         // Create transaction for swapping LUSD to TIGER 
         // Using Pool 1 or Pool 2??
         IV3SwapRouter.ExactInputSingleParams memory params = IV3SwapRouter
             .ExactInputSingleParams({
-                tokenIn: LUSD,
-                tokenOut: TIGER,
+                tokenIn: lusdAddr,
+                tokenOut: tigerAddr,
                 fee: 500, // Set to 500 if pool 1 and 3000 if pool 2
                 recipient: address(this),// Who is receiving the TIGER //
                 amountIn: amountIn,
@@ -54,14 +50,14 @@ contract Arbitrage {
         uint256 amountOut1 = swapRouter.exactInputSingle(params);
 
         // Approve the SwapRouter to transfer our new TIGER
-        TransferHelper.safeApprove(TIGER, address(swapRouter), MAX_UINT);
+        TransferHelper.safeApprove(tigerAddr, address(swapRouter), MAX_UINT);
 
         // Create transaction for swapping TIGER to LUSD 
         // Using Pool 1 or Pool 2 ?? 
         IV3SwapRouter.ExactInputSingleParams memory params2 = IV3SwapRouter
             .ExactInputSingleParams({
-                tokenIn: TIGER,
-                tokenOut: LUSD,
+                tokenIn: tigerAddr,
+                tokenOut: lusdAddr,
                 fee: 500, // Set to 500 if pool 1 and 3000 if pool 2
                 recipient: msg.sender, // Who is receiving the LUSD? This is the last step of the arbitrage. // 
                 amountIn: amountOut1, // Think about what value we would like to send 
