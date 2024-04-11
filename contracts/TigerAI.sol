@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract TigerAI is ERC20, Ownable {
     address private constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
-    mapping(address => bool) private whitelist;
+    mapping(address => bool) public whitelist; // for unit testing purposes, this is made public
 
     constructor() ERC20("TIGERAI", "TAI") {
         _mint(msg.sender, 1000000 * 10 ** uint(decimals()));
