@@ -7,11 +7,9 @@ contract("ERC20Wrapper", (accounts) => {
     const initialLETHSupply = web3.utils.toBN(web3.utils.toWei('1000', 'ether'));
 
     before(async () => {
-        lethInstance = await LETH.deployed();
         wrapperInstance = await ERC20Wrapper.new(lethInstance.address);
-
-        await lethInstance.transfer(accounts[1], initialLETHSupply, {from: accounts[0]});
-        await lethInstance.approve(wrapperInstance.address, initialLETHSupply, {from: accounts[1]});
+        lethInstance = await LETH.new({ from: owner });
+        await lethInstance.transfer(user, depositAmount, { from: owner });
     });
 
     it("Test 1: Test Deposit", async () => {
