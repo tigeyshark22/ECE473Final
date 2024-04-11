@@ -21,11 +21,11 @@ contract TIGERAI is ERC20, Ownable {
         _burn(msg.sender, amount);
     }
 
-    function addTowhitelist(address _address) public onlyOwner {
+    function addToWhitelist(address _address) public onlyOwner {
         whitelist[_address] = true;
     }
 
-    function removeWhitelist(address _address) public onlyOwner {
+    function removeFromWhitelist(address _address) public onlyOwner {
         whitelist[_address] = false;
     }
 }

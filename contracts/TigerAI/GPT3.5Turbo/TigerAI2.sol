@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract TIGERAI2 is ERC20, Ownable {
     mapping(address => bool) public whitelist;
 
-    constructor() ERC20("TIGERAI", "TGR") {
+    constructor() ERC20("TIGERAI2", "TGR") {
         _mint(msg.sender, 1000000000000000000000); // Mint 1000 tokens initially
     }
 
