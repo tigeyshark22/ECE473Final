@@ -72,7 +72,7 @@ contract('TIGERAI', async accounts => {
         }
     });
 
-    it('Owner should be able to burn tokens', async () => {
+    it('Recipient should be able to burn tokens', async () => {
         await tigeraiInstance.addToWhitelist(owner);
         await tigeraiInstance.mint(amount, recipient, { from: owner });
         const initialBalance = await tigeraiInstance.balanceOf(recipient);
@@ -80,5 +80,16 @@ contract('TIGERAI', async accounts => {
         const finalBalance = await tigeraiInstance.balanceOf(recipient);
         const expectedFinalBalance = initialBalance.sub(web3.utils.toBN(amount));
         assert.strictEqual(finalBalance.toString(), expectedFinalBalance.toString());
+    });
+
+    it('People with not enough balance cannot burn', async () => {
+        try {
+            await tigeraiInstance.addToWhitelist(owner);
+            await tigeraiInstance.mint(amount, recipient, { from: owner });
+            await tigeraiInstance.burn(2 * amount, { from: recipient });
+            assert.fail('Expected burn function to revert');
+        } catch (error) {
+            // idk if I need to check anything here tbh
+        }
     });
 });

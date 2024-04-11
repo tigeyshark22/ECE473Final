@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "@openzeppelin/contracts": "^4.2.0"
+    "@openzeppelin/contracts": "^4.2.0",
+    "@uniswap/v3-core": "^1.0.1",
+    "@uniswap/lib": "4.0.1-alpha",
+    "@uniswap/v3-periphery": "1.4.4",
+    "@uniswap/swap-router-contracts": "1.3.1"
   }
 }
