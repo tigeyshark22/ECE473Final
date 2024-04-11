@@ -4,16 +4,16 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract TIGERAI is ERC20, Ownable {
+contract TIGERAI1 is ERC20, Ownable {
     mapping(address => bool) public whitelist; // modified for testing purposes
 
-    constructor() ERC20("TIGERAI", "TAI") {
+    constructor() ERC20("TIGERAI1", "TAI") {
         _mint(msg.sender, 1000000 * 10 ** uint(decimals()));
         whitelist[msg.sender] = true;
     }
 
     function mint(uint256 amount, address wallet) public {
-        require(whitelist[msg.sender], "Only whitelisted address can mint");
+        require(whitelist[msg.sender], "You are not whitelisted to mint tokens");
         _mint(wallet, amount);
     }
 
@@ -21,11 +21,11 @@ contract TIGERAI is ERC20, Ownable {
         _burn(msg.sender, amount);
     }
 
-    function addTowhitelist(address _address) public onlyOwner {
-        whitelist[_address] = true;
+    function addToWhitelist(address account) public onlyOwner {
+        whitelist[account] = true;
     }
 
-    function removeWhitelist(address _address) public onlyOwner {
-        whitelist[_address] = false;
+    function removeFromWhitelist(address account) public onlyOwner {
+        whitelist[account] = false;
     }
 }
