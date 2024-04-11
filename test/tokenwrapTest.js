@@ -1,3 +1,5 @@
+const fs = require('fs').promises;
+
 const LETH = artifacts.require("LETH");
 const ERC20Wrapper = artifacts.require("ERC20Wrapper");
 
@@ -26,17 +28,14 @@ contract("ERC20Wrapper", (accounts) => {
     });
 
     it("Test 2: Test Withdraw", async () => {
-        const withdrawAmount = web3.utils.toWei('5', 'ether');
         await lethInstance.approve(wrapperInstance.address, depositAmount, { from: user });
         await wrapperInstance.deposit(depositAmount, { from: user });
         const initialBalance = await wrapperInstance.balanceOf(user);
         await wrapperInstance.withdraw(depositAmount, { from: user });
         const finalBalance = await wrapperInstance.balanceOf(user);
 
-        await wrapperInstance.withdraw(withdrawAmount, {from: accounts[1]});
-
-        const finalLETHBalanceAfterWithdraw = await lethInstance.balanceOf(accounts[1]);
-        const finalWLETHBalanceAfterWithdraw = await wrapperInstance.balanceOf(accounts[1]);
+        const finalLETHBalanceAfterWithdraw = await lethInstance.balanceOf(user);
+        const finalWLETHBalanceAfterWithdraw = await wrapperInstance.balanceOf(user);
 
         assert.equal(finalLETHBalanceAfterWithdraw.toString(), initialLETHSupply.sub(web3.utils.toBN(withdrawAmount)).toString(), "LETH balance should increase by withdraw amount after withdrawal");
         assert.equal(finalWLETHBalanceAfterWithdraw.toString(), web3.utils.toWei('5', 'ether'), "WLETH balance should decrease by withdraw amount");
