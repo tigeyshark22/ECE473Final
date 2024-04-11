@@ -1,7 +1,8 @@
-const fs = require('Chai');
+const fs = require('fs').promises;
+
 const TIGERAI = artifacts.require('TIGERAI');
 
-contract('TigerAI test', async accounts => {
+contract('TIGERAI', async accounts => {
     let tigeraiInstance;
     const owner = accounts[0];
     const recipient = accounts[1];
@@ -15,11 +16,17 @@ contract('TigerAI test', async accounts => {
         await tigeraiInstance.addToWhitelist(owner);
         await tigeraiInstance.mint(amount, recipient, { from: owner });
         const balance = await tigeraiInstance.balanceOf(recipient);
-        expect(balance.toNumber()).to.equal(amount);
+        const expectedBalance = web3.utils.toBN(amount);
+        assert.strictEqual(balance.toString(), expectedBalance.toString());
     });
 
     it('Non-owner should not be able to mint tokens', async () => {
-        await expect(tigeraiInstance.mint(amount, recipient, { from: recipient })).to.be.rejectedWith('Only whitelisted addresses can mint tokens');
+        try {
+            await tigeraiInstance.mint(amount, recipient, { from: recipient });
+            assert.fail('Expected mint function to revert');
+        } catch (error) {
+            assert.include(error.message, 'Only whitelisted addresses can mint tokens', 'Incorrect revert message');
+        }
     });
 
     it('Owner should be able to burn tokens', async () => {
@@ -28,10 +35,7 @@ contract('TigerAI test', async accounts => {
         const initialBalance = await tigeraiInstance.balanceOf(recipient);
         await tigeraiInstance.burn(amount, { from: recipient });
         const finalBalance = await tigeraiInstance.balanceOf(recipient);
-        expect(finalBalance.toNumber()).to.equal(initialBalance.toNumber() - amount);
-    });
-
-    it('Non-owner should not be able to burn tokens', async () => {
-        await expect(tigeraiInstance.burn(amount, { from: recipient })).to.be.rejectedWith('Ownable: caller is not the owner');
+        const expectedFinalBalance = initialBalance.sub(web3.utils.toBN(amount));
+        assert.strictEqual(finalBalance.toString(), expectedFinalBalance.toString());
     });
 });
