@@ -40,7 +40,7 @@ contract StabilizerGPT {
 
    function getCurrentPrice() public view returns (uint256 price) {
        (uint160 sqrtPriceX96,,,,,,) = uniswapPool.slot0();
-       // Incorrect: should divide by 2 ** 96 twice; .mul and .div fixed after two different GPT queries
+       // Incorrect: should divide by 2 ** 96 twice; compilation errors fixed after two different GPT queries
        uint256 priceX96 = uint256(sqrtPriceX96) * uint256(sqrtPriceX96) * (1e18) / (2**96);
        return priceX96;
    }
@@ -52,6 +52,7 @@ contract StabilizerGPT {
        // should be miniDAI.approve
        labUSD.approve(swap_addr, MAX_UINT);
        // AI Output: CustomSwapRouter(swap_addr).swapTokens(miniDAI_addr, labUSD_addr, miniDAI.balanceOf(address(this)));
+       // I changed this line manually for ease of compilation
        IBasicSwapRouter(swap_addr).swapTokens(miniDAI_addr, labUSD_addr, miniDAI.balanceOf(address(this)));
    }
 
@@ -59,11 +60,10 @@ contract StabilizerGPT {
        TransferHelper.safeTransferFrom(labUSD_addr, msg.sender, address(this), lusd_amount);
        labUSD.approve(swap_addr, MAX_UINT);
        // AI Output: CustomSwapRouter(swap_addr).swapTokens(labUSD_addr, miniDAI_addr, lusd_amount);
+       // I changed this line manually for ease of compilation
        IBasicSwapRouter(swap_addr).swapTokens(labUSD_addr, miniDAI_addr, lusd_amount);
-       /*
        uint256 dai_received = miniDAI.balanceOf(address(this));
        miniDAI.burn(address(this), dai_received);
        labUSD.transfer(msg.sender, labUSD.balanceOf(address(this)));
-       */
    }
 }
