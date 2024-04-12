@@ -8,14 +8,7 @@ import "@uniswap/swap-router-contracts/contracts/interfaces/IV3SwapRouter.sol";
 import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../CustomSwapRouter.sol";
-
-
-interface IMiniDAI {
-    function balanceOf(address account) external view returns (uint256);
-    function mint(uint256 amount, address to) external;
-    function burn(address from, uint256 amount) external;
-    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-}
+import "./interfaces/IMiniDai.sol";
 
 contract Stabilizer {
     IUniswapV3Pool public uniswapPool;
@@ -56,57 +49,23 @@ contract Stabilizer {
         return price;
     }
 
-    function arbitrageAbovePeg(uint256 lusd_amount) internal {
-        // This function would contain logic to mint MiniDAI and sell it on Uniswap.
-        // For simplicity, this could involve calling miniDAI.mint() with an appropriate amount,
-        // then swapping MiniDAI for LabUSD on Uniswap, assuming MiniDAI is above its peg and thus "overvalued".
-        // Exact implementation details depend on Uniswap V3 interaction patterns and are omitted here.
-        // Use TransferHelper to transfer LUSD from your wallet to the smart contract
-        // Make sure that you approve this contract to spend LUSD through the LUSD contract 
-
+    function arbitrageAbovePeg(uint256 lusd_amount) public {
         labUSD.transferFrom(msg.sender, address(this), lusd_amount); // Transfer lab usd from your account to this contract
-        
         TransferHelper.safeApprove(labUSD_addr, miniDAI_addr, lusd_amount); // approve the miniDAI contract to use this contract's labUSD
-        
         miniDAI.mint(lusd_amount, address(this)); // mint DAI tokens by posting labUSD as collateral
-        
         TransferHelper.safeApprove(miniDAI_addr, swap_addr, lusd_amount); // Approve uniswap router to use your DAI
-        
         IBasicSwapRouter(swap_addr).swapTokens(miniDAI_addr, labUSD_addr, lusd_amount); // send the swap
-        
     }
 
-function arbitrageBelowPeg(uint256 lusd_amount) internal {
-    // This function is triggered when MiniDAI's market price is below its pegged value, indicating it is "undervalued".
-    // The goal is to buy MiniDAI using LabUSD on Uniswap, then burn the bought MiniDAI to decrease its supply and help push its price back up to the peg.
-
-    // Transfer LabUSD from the caller's account to this contract to prepare for the swap.
-    // The caller must have approved this contract to spend LabUSD beforehand.
-
-    labUSD.transferFrom(msg.sender, address(this), lusd_amount); // Transfer LabUSD from the caller's account to this contract to prepare for the swap.
-
-    // Approve the Uniswap router to spend LabUSD from this contract.
-    // This approval is necessary for the swap operation on Uniswap.
-
-    TransferHelper.safeApprove(labUSD_addr, swap_addr, lusd_amount); // Approve the Uniswap router to spend LabUSD from this contract.
-
-    // Set up the parameters for the swap operation on Uniswap.
-    // This includes specifying the input and output tokens (LabUSD for MiniDAI), the fee tier, the recipient of the output tokens,
-    // the amount of LabUSD to swap, and the minimum amount of MiniDAI to accept in return (set to 0 for simplicity).
-
-    // Execute the swap on Uniswap V3 router.
-    // This swaps the specified amount of LabUSD for MiniDAI.
-    IBasicSwapRouter(swap_addr).swapTokens(labUSD_addr, miniDAI_addr, lusd_amount);
-
-    // After receiving MiniDAI, calculate the amount received by checking this contract's balance.
-    uint256 mdai_amount = miniDAI.balanceOf(address(this)); // Check the amount of MiniDAI received by this contract.
-
-    // Burn the MiniDAI to reduce its circulating supply, aiming to increase its price towards the peg.
-    miniDAI.burn(address(this), mdai_amount); 
-
-    // Return any remaining LabUSD back to the caller.
-    labUSD.transfer(msg.sender, labUSD.balanceOf(address(this))); // Return any remaining LabUSD back to the caller.
-}
-    // Note: Real-world implementations would need to manage ERC20 token approvals,
-    // handle transaction slippage, calculate optimal trade sizes, and ensure economic viability of arbitrage (including gas costs).
+    function arbitrageBelowPeg(uint256 lusd_amount) public {
+        labUSD.transferFrom(msg.sender, address(this), lusd_amount); // Transfer LabUSD from the caller's account to this contract to prepare for the swap.
+        TransferHelper.safeApprove(labUSD_addr, swap_addr, lusd_amount); // Approve the Uniswap router to spend LabUSD from this contract.
+        IBasicSwapRouter(swap_addr).swapTokens(labUSD_addr, miniDAI_addr, lusd_amount);
+        uint256 mdai_amount = miniDAI.balanceOf(address(this)); // Check the amount of MiniDAI received by this contract.
+        miniDAI.burn(address(this), mdai_amount); 
+        labUSD.transfer(msg.sender, labUSD.balanceOf(address(this))); // Return any remaining LabUSD back to the caller.
+        
+        // Note: Real-world implementations would need to manage ERC20 token approvals,
+        // handle transaction slippage, calculate optimal trade sizes, and ensure economic viability of arbitrage (including gas costs).
+    }
 }

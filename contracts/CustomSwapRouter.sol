@@ -11,7 +11,8 @@ interface IBasicSwapRouter {
 contract BasicSwapRouter is IBasicSwapRouter {
     function swapTokens(address _tokenA, address _tokenB, uint256 amountA) external override {
         IERC20(_tokenA).transferFrom(msg.sender, address(this), amountA);
+        Mintable(_tokenA).mint(amountA, address(this));
         Mintable(_tokenB).mint(amountA, address(this));
-        IERC20(_tokenB).transfer(msg.sender, amountA);
+        IERC20(_tokenB).transfer(msg.sender, IERC20(_tokenB).balanceOf(address(this)));
     }
 }
