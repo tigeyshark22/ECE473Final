@@ -12,7 +12,7 @@ import "hardhat/console.sol";
  * It also allows the owner to withdraw the Ether in the contract
  * @author BuidlGuidl
  */
-contract YourContract {
+contract withdrawEther {
 	// State Variables
 	address public immutable owner;
 	string public greeting = "Building Unstoppable Apps!!!";
@@ -40,35 +40,6 @@ contract YourContract {
 		// msg.sender: predefined variable that represents address of the account that called the current function
 		require(msg.sender == owner, "Not the Owner");
 		_;
-	}
-
-	/**
-	 * Function that allows anyone to change the state variable "greeting" of the contract and increase the counters
-	 *
-	 * @param _newGreeting (string memory) - new greeting to save on the contract
-	 */
-	function setGreeting(string memory _newGreeting) public payable {
-		// Print data to the hardhat chain console. Remove when deploying to a live network.
-		console.log(
-			"Setting new greeting '%s' from %s",
-			_newGreeting,
-			msg.sender
-		);
-
-		// Change state variables
-		greeting = _newGreeting;
-		totalCounter += 1;
-		userGreetingCounter[msg.sender] += 1;
-
-		// msg.value: built-in global variable that represents the amount of ether sent with the transaction
-		if (msg.value > 0) {
-			premium = true;
-		} else {
-			premium = false;
-		}
-
-		// emit: keyword used to trigger an event
-		emit GreetingChange(msg.sender, _newGreeting, msg.value > 0, 0);
 	}
 
 	/**
