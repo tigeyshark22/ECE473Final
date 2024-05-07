@@ -1,0 +1,33 @@
+Create a new ERC-20 token named TIGERAI. This token should have a whitelist that allows ONLY the people on the whitelist to perform certain functions. Add four functions with the following specifications:
+mint(uint256, address) should allow ONLY the whitelisted people to mint new tokens. Given an input of a specified amount of new tokens and a specified wallet address, it should mint and subsequently deposit that amount of tokens in the wallet.
+burn(uint256) should burnthe specified amount of tokens from the sender.
+addTowhitelist(address) should allow ONLY the owner of the contract to add a specified address to the whitelist.
+removeFromWhitelist(address) should allow ONLY the owner of the contract to remove a specified address from the whitelist, if it exists.
+
+Here is the code skeleton that you should fill in:
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract TIGERAI is ERC20 {
+
+   constructor() ERC20("TIGERAI", "TAI") {
+
+   }
+
+   function mint(uint256 amount, address wallet) public {
+
+   }
+
+   function burn(uint256 amount) public {
+
+   }
+
+   function addToWhitelist(address _address) public onlyOwner {
+
+   }
+
+   function removeFromWhitelist(address _address) public onlyOwner {
+
+   }
+}
+

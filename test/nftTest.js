@@ -1,5 +1,6 @@
 const BENCHMARK = artifacts.require("TigerNFT");
 const GPT = artifacts.require("TigerNFTGPT");
+const GPTEVAL = artifacts.require("TigerNFTEval");
 
 contract("TigerNFT", async accounts => {
     let tigerNFTInstance;
@@ -8,7 +9,7 @@ contract("TigerNFT", async accounts => {
     const user = accounts[1];
 
     beforeEach(async () => {
-        tigerNFTInstance = await GPT.new({ from: owner });
+        tigerNFTInstance = await GPTEVAL.new({ from: owner });
     });
 
     it("Test 1: Test Minting", async () => {
@@ -36,13 +37,17 @@ contract("TigerNFT", async accounts => {
     });
 
     it("Test 3: Test Permissions", async () => {
-        const inputString = "Test NFT 3"
+        const inputString = "Test NFT 3";
+
+        let err = null;
+
         try {
             await tigerNFTInstance.mint(inputString, user, { from: user });
-            assert.fail("User should not be able to mint");
-        } catch {
-            
+        } catch (error) {
+            err = error;
         }
+
+        assert.ok(err instanceof Error);
         
     })
 });

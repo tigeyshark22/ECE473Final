@@ -1,10 +1,10 @@
 const fs = require('fs').promises;
 
 const BENCHMARK = artifacts.require('TIGERAI');
-const TIGERAI1 = artifacts.require('TIGERAI1');
-const TIGERAI2 = artifacts.require('TIGERAI2');
+const TIGERAI = artifacts.require('TIGERAI1');
+const TIGERAIEVAL = artifacts.require('TIGERAI2');
 
-const RUN = TIGERAI2;
+const RUN = TIGERAI;
 
 contract('TIGERAI', async accounts => {
     let tigeraiInstance;
@@ -26,12 +26,14 @@ contract('TIGERAI', async accounts => {
     });
 
     it('Non-whitelist should not be able to mint tokens', async () => {
+        let err = null;
         try {
             await tigeraiInstance.mint(amount, recipient, { from: recipient });
-            assert.fail('Expected mint function to revert');
         } catch (error) {
+            err = error;
             // assert.include(error.message, 'Only whitelisted addresses can mint tokens', 'Incorrect revert message');
         }
+        assert.ok(err instanceof Error);
     });
 
     it('Owner should be able to add address to whitelist', async () => {
@@ -41,12 +43,14 @@ contract('TIGERAI', async accounts => {
     });
 
     it('Non-owner should not be able to add address to whitelist', async () => {
+        let err = null;
         try {
             await tigeraiInstance.addToWhitelist(nonOwner, { from: nonOwner });
-            assert.fail('Expected addToWhitelist function to revert');
         } catch (error) {
+            err = error;
             // assert.include(error.message, 'Ownable: caller is not the owner', 'Incorrect revert message');
         }
+        assert.ok(err instanceof Error);
     });
 
     it('Owner should be able to remove address from whitelist', async () => {
@@ -64,12 +68,16 @@ contract('TIGERAI', async accounts => {
         let isWhitelisted = await tigeraiInstance.whitelist.call(nonOwner);
         assert.isTrue(isWhitelisted);
 
+        let err = null;
+
         try {
             await tigeraiInstance.removeFromWhitelist(nonOwner, { from: nonOwner });
-            assert.fail('Expected removeFromWhitelist function to revert');
         } catch (error) {
+            err = error;
             // assert.include(error.message, 'Ownable: caller is not the owner', 'Incorrect revert message');
         }
+
+        assert.ok(err instanceof Error);
     });
 
     it('Recipient should be able to burn tokens', async () => {
@@ -83,13 +91,15 @@ contract('TIGERAI', async accounts => {
     });
 
     it('People with not enough balance cannot burn', async () => {
+        let err = null;
         try {
             await tigeraiInstance.addToWhitelist(owner);
             await tigeraiInstance.mint(amount, recipient, { from: owner });
             await tigeraiInstance.burn(2 * amount, { from: recipient });
-            assert.fail('Expected burn function to revert');
         } catch (error) {
-            // idk if I need to check anything here tbh
+            err = error;
         }
+
+        assert.ok(err instanceof Error);
     });
 });
